@@ -1,0 +1,3 @@
+/** Noqqto Audit OS ScoreCard */
+export const ScoreRating=Object.freeze({EXCELLENT:'excellent',GOOD:'good',AVERAGE:'average',POOR:'poor',CRITICAL:'critical'});
+export class ScoreCard{constructor({id,name,score=0,weight=0,confidence=100,rating=ScoreRating.AVERAGE,evidence=[],recommendations=[],metadata={}}={}){if(!id)throw new Error('id required');if(!name)throw new Error('name required');this.id=id;this.name=name;this.score=Math.max(0,Math.min(100,Number(score)));this.weight=Number(weight);this.confidence=Math.max(0,Math.min(100,Number(confidence)));this.rating=rating;this.evidence=Object.freeze([...evidence]);this.recommendations=Object.freeze([...recommendations]);this.metadata=Object.freeze({...metadata});Object.freeze(this);}toJSON(){return{...this};}}
