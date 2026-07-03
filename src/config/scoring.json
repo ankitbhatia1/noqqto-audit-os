@@ -1,0 +1,21 @@
+{
+  "overall": {
+    "passingScore": 60
+  },
+  "categories": {
+    "authority": {
+      "weight": 15,
+      "metrics": {
+        "authority": 0.5,
+        "referringDomains": 0.3,
+        "spamScore": 0.2
+      }
+    }
+  },
+  "ratings": {
+    "excellent": 90,
+    "good": 75,
+    "average": 60,
+    "poor": 40
+  }
+}
