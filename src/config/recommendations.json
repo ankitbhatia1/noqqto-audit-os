@@ -1,0 +1,17 @@
+{
+  "authority.digital-pr": {
+    "title": "Launch a digital PR campaign",
+    "impact": "high",
+    "difficulty": "medium"
+  },
+  "authority.link-gap": {
+    "title": "Close the referring domain gap",
+    "impact": "high",
+    "difficulty": "medium"
+  },
+  "authority.anchor-diversity": {
+    "title": "Improve anchor text diversity",
+    "impact": "medium",
+    "difficulty": "low"
+  }
+}
