@@ -1,13 +1,14 @@
 export class DashboardViewModel {
-  build(summary){
+  build(summary) {
     return {
       healthScore: summary.score,
       healthRating: summary.rating,
       confidence: summary.confidence,
-      strongestCategory: summary.strongest?.name,
-      weakestCategory: summary.weakest?.name,
-      recommendationCount: summary.recommendations.length,
-      recommendations: summary.recommendations,
+      strongestCategory: summary.strongest?.name ?? null,
+      weakestCategory: summary.weakest?.name ?? null,
+      notMeasured: summary.notMeasured || [],
+      recommendationCount: summary.recommendations?.length ?? 0,
+      recommendations: summary.recommendations || [],
       categories: summary.categories,
       generatedAt: summary.generatedAt
     };

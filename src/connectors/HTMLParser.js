@@ -9,6 +9,15 @@ export class HTMLParser {
    */
   parse(html, baseUrl = '') {
     const $ = cheerio.load(html);
+
+    const body = $('body').clone();
+    body.find('script, style, noscript, template').remove();
+    // Strip tags to spaces so adjacent blocks don't glue words together.
+    const bodyText = (body.html() || '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&[a-zA-Z#0-9]+;/g, ' ');
+    const wordCount = bodyText.trim().split(/\s+/).filter(Boolean).length;
+
     const hrefs = $('a[href]')
       .map((_, el) => $(el).attr('href'))
       .get();
@@ -33,6 +42,7 @@ export class HTMLParser {
 
     return {
       title: $('title').text().trim(),
+      wordCount,
       metaDescription: $('meta[name="description"]').attr('content') || '',
       canonical: $('link[rel="canonical"]').attr('href') || '',
       h1: $('h1').map((_, el) => $(el).text().trim()).get(),

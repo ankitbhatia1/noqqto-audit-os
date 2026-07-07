@@ -1,19 +1,22 @@
-import { ScoreCard, ScoreRating } from '../models/ScoreCard.js';
+import { makeCard, bool, atLeast } from '../models/scoring-utils.js';
 
 export class ContentQualityService {
-  calculate(metrics={}){
-    const checks={
-      title:!!metrics.title,
-      metaDescription:!!metrics.metaDescription,
-      headings:!!metrics.headings,
-      wordCount:(metrics.wordCount||0)>=800,
-      internalLinks:(metrics.internalLinks||0)>=5,
-      imagesOptimized:!!metrics.imagesOptimized,
-      freshness:!!metrics.freshness
-    };
-    const passed=Object.values(checks).filter(Boolean).length;
-    const score=Math.round((passed/Object.keys(checks).length)*100);
-    return new ScoreCard({id:'content-quality',name:'Content Quality',score,weight:20,confidence:90,rating:this.#r(score),evidence:Object.entries(checks).map(([k,v])=>({metric:k,status:v?'pass':'fail'})),recommendations:Object.entries(checks).filter(([,v])=>!v).map(([k])=>`content.${k}`)});
+  calculate(metrics = {}) {
+    const c = metrics.content || {};
+    return makeCard({
+      id: 'content-quality',
+      name: 'Content Quality',
+      recPrefix: 'content.',
+      checks: {
+        titles: atLeast(c.titleCoverage, 0.9),
+        metaDescriptions: atLeast(c.metaDescriptionCoverage, 0.8),
+        headings: atLeast(c.h1Coverage, 0.9),
+        wordCount: atLeast(c.avgWordCount, 800),
+        internalLinking: atLeast(c.avgInternalLinks, 5),
+        imageAlt: atLeast(c.imageAltCoverage, 0.9),
+        language: bool(c.languageDeclared)
+      },
+      metadata: { avgWordCount: c.avgWordCount ?? null, avgInternalLinks: c.avgInternalLinks ?? null }
+    });
   }
-  #r(s){if(s>=90)return ScoreRating.EXCELLENT;if(s>=75)return ScoreRating.GOOD;if(s>=60)return ScoreRating.AVERAGE;if(s>=40)return ScoreRating.POOR;return ScoreRating.CRITICAL;}
 }

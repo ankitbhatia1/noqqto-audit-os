@@ -2,20 +2,19 @@
   "overall": {
     "passingScore": 60
   },
-  "categories": {
-    "authority": {
-      "weight": 15,
-      "metrics": {
-        "authority": 0.5,
-        "referringDomains": 0.3,
-        "spamScore": 0.2
-      }
-    }
-  },
   "ratings": {
     "excellent": 90,
     "good": 75,
     "average": 60,
     "poor": 40
+  },
+  "categories": {
+    "technical-seo": { "weight": 20, "baseConfidence": 95 },
+    "content-quality": { "weight": 20, "baseConfidence": 90 },
+    "performance": { "weight": 15, "baseConfidence": 92 },
+    "ai-visibility": { "weight": 15, "baseConfidence": 85 },
+    "keywords": { "weight": 10, "baseConfidence": 90 },
+    "authority": { "weight": 10, "baseConfidence": 85 },
+    "backlinks": { "weight": 10, "baseConfidence": 85 }
   }
 }

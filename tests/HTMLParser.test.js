@@ -31,6 +31,11 @@ describe('HTMLParser', () => {
     expect(result.imagesEmptyAlt).toBe(1);
   });
 
+  it('counts words in body text, ignoring scripts and styles', () => {
+    const result = parser.parse(html, 'https://noqqto.com/');
+    expect(result.wordCount).toBe(6);
+  });
+
   it('returns JSON-LD block contents so StructuredDataParser can consume them', () => {
     const result = parser.parse(html, 'https://noqqto.com/');
     expect(result.jsonLdBlocks).toHaveLength(1);

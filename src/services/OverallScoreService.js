@@ -1,4 +1,4 @@
-import { ScoreRating } from '../models/ScoreCard.js';
+import { ratingFor } from '../models/scoring-utils.js';
 
 export class OverallScoreService {
   calculate(scoreCards = []) {
@@ -6,25 +6,26 @@ export class OverallScoreService {
       throw new Error('At least one ScoreCard is required.');
     }
 
-    const totalWeight = scoreCards.reduce((t,c)=>t+(c.weight||0),0);
-    const score = totalWeight===0 ? 0 : Math.round(scoreCards.reduce((t,c)=>t+(c.score*c.weight),0)/totalWeight);
-    const confidence = Math.round(scoreCards.reduce((t,c)=>t+c.confidence,0)/scoreCards.length);
+    // Unmeasured categories are excluded and reported, never counted as zero.
+    const measured = scoreCards.filter((c) => c.score !== null);
+    const notMeasured = scoreCards.filter((c) => c.score === null);
+
+    const totalWeight = measured.reduce((t, c) => t + (c.weight || 0), 0);
+    const score =
+      totalWeight === 0 ? null : Math.round(measured.reduce((t, c) => t + c.score * c.weight, 0) / totalWeight);
+    const confidence =
+      measured.length === 0 ? 0 : Math.round(measured.reduce((t, c) => t + c.confidence, 0) / measured.length);
+
+    const byScore = [...measured].sort((a, b) => b.score - a.score);
 
     return {
       score,
       confidence,
-      rating:this.determineRating(score),
-      strongest:[...scoreCards].sort((a,b)=>b.score-a.score)[0],
-      weakest:[...scoreCards].sort((a,b)=>a.score-b.score)[0],
-      categories:scoreCards
+      rating: ratingFor(score),
+      strongest: byScore[0] || null,
+      weakest: byScore[byScore.length - 1] || null,
+      notMeasured: notMeasured.map((c) => c.name),
+      categories: scoreCards
     };
-  }
-
-  determineRating(score){
-    if(score>=90)return ScoreRating.EXCELLENT;
-    if(score>=75)return ScoreRating.GOOD;
-    if(score>=60)return ScoreRating.AVERAGE;
-    if(score>=40)return ScoreRating.POOR;
-    return ScoreRating.CRITICAL;
   }
 }

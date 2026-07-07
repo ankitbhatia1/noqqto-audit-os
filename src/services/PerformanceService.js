@@ -1,11 +1,26 @@
-import { ScoreCard, ScoreRating } from '../models/ScoreCard.js';
+import { makeCard, bool, atLeast, atMost } from '../models/scoring-utils.js';
 
 export class PerformanceService {
-  calculate(metrics={}){
-    const checks={lcp:!!metrics.lcp,inp:!!metrics.inp,cls:!!metrics.cls,ttfb:!!metrics.ttfb,mobile:!!metrics.mobileScore,desktop:!!metrics.desktopScore,images:!!metrics.imageOptimization,js:!!metrics.javascriptOptimization,css:!!metrics.cssOptimization,cache:!!metrics.browserCaching,compression:!!metrics.compression,cdn:!!metrics.cdn};
-    const passed=Object.values(checks).filter(Boolean).length;
-    const score=Math.round((passed/Object.keys(checks).length)*100);
-    return new ScoreCard({id:'performance',name:'Performance',score,weight:15,confidence:92,rating:this.#r(score),evidence:Object.entries(checks).map(([m,v])=>({metric:m,status:v?'pass':'fail'})),recommendations:Object.entries(checks).filter(([,v])=>!v).map(([m])=>`performance.${m}`)});
+  calculate(metrics = {}) {
+    const p = metrics.performance || {};
+    return makeCard({
+      id: 'performance',
+      name: 'Performance',
+      recPrefix: 'performance.',
+      checks: {
+        lighthousePerformance: atLeast(p.lighthousePerformance, 80),
+        lcp: atMost(p.lcpMs, 2500),
+        cls: atMost(p.cls, 0.1),
+        tbt: atMost(p.tbtMs, 200),
+        caching: bool(p.cacheControl),
+        compression: bool(p.compression)
+      },
+      metadata: {
+        lighthousePerformance: p.lighthousePerformance ?? null,
+        lcpMs: p.lcpMs ?? null,
+        cls: p.cls ?? null,
+        tbtMs: p.tbtMs ?? null
+      }
+    });
   }
-  #r(s){if(s>=90)return ScoreRating.EXCELLENT;if(s>=75)return ScoreRating.GOOD;if(s>=60)return ScoreRating.AVERAGE;if(s>=40)return ScoreRating.POOR;return ScoreRating.CRITICAL;}
 }

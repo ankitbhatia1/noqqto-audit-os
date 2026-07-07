@@ -1,37 +1,27 @@
-import { ScoreCard, ScoreRating } from '../models/ScoreCard.js';
+import { makeCard, bool } from '../models/scoring-utils.js';
 
+/**
+ * Keyword checks are judgment calls that no HTML connector can produce.
+ * They stay "not measured" until keyword data is supplied through the
+ * pipeline's `external.keywords` input (Semrush export, analyst review,
+ * or a future LLM analysis step).
+ */
 export class KeywordService {
   calculate(metrics = {}) {
-    const checks = {
-      primaryKeyword: !!metrics.primaryKeyword,
-      titleOptimization: !!metrics.titleOptimization,
-      headingOptimization: !!metrics.headingOptimization,
-      semanticCoverage: !!metrics.semanticCoverage,
-      searchIntent: !!metrics.searchIntent,
-      entityCoverage: !!metrics.entityCoverage,
-      keywordCannibalization: metrics.keywordCannibalization !== true
-    };
-
-    const passed = Object.values(checks).filter(Boolean).length;
-    const score = Math.round((passed / Object.keys(checks).length) * 100);
-
-    return new ScoreCard({
+    const k = metrics.keywords || {};
+    return makeCard({
       id: 'keywords',
       name: 'Keyword Optimization',
-      score,
-      weight: 15,
-      confidence: 90,
-      rating: this.#rating(score),
-      evidence: Object.entries(checks).map(([metric, ok]) => ({ metric, status: ok ? 'pass' : 'fail' })),
-      recommendations: Object.entries(checks).filter(([, ok]) => !ok).map(([metric]) => `keywords.${metric}`)
+      recPrefix: 'keywords.',
+      checks: {
+        primaryKeyword: bool(k.primaryKeyword),
+        titleOptimization: bool(k.titleOptimization),
+        headingOptimization: bool(k.headingOptimization),
+        searchIntent: bool(k.searchIntent),
+        semanticCoverage: bool(k.semanticCoverage),
+        entityCoverage: bool(k.entityCoverage),
+        noCannibalization: k.keywordCannibalization == null ? null : k.keywordCannibalization !== true
+      }
     });
-  }
-
-  #rating(score) {
-    if (score >= 90) return ScoreRating.EXCELLENT;
-    if (score >= 75) return ScoreRating.GOOD;
-    if (score >= 60) return ScoreRating.AVERAGE;
-    if (score >= 40) return ScoreRating.POOR;
-    return ScoreRating.CRITICAL;
   }
 }

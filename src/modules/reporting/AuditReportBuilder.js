@@ -14,7 +14,7 @@ export class AuditReportBuilder {
       dashboard: this.dashboardViewModel.build(summary),
       roadmap: this.roadmapEngine.build(scoreCards, this.recommendationEngine),
       generatedAt: new Date().toISOString(),
-      version: '0.1.0'
+      version: '0.2.0'
     };
   }
 }

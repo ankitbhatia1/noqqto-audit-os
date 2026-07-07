@@ -16,7 +16,7 @@ export class InternalCrawler {
       try {
         const page = await this.pageFetcher.fetch(url);
         const analysis = this.htmlParser.parse(page.html, page.finalUrl || url);
-        pages.push({ url, finalUrl: page.finalUrl, status: page.status, analysis });
+        pages.push({ url, finalUrl: page.finalUrl, status: page.status, headers: page.headers, analysis });
       } catch (err) {
         // One dead URL must not sink the whole audit.
         pages.push({ url, status: 0, error: err.message, analysis: null });
