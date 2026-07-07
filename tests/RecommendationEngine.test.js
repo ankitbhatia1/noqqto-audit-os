@@ -1,10 +1,24 @@
+import { describe, it, expect } from 'vitest';
 import { RecommendationEngine } from '../src/services/RecommendationEngine.js';
 
-const catalog={a:{impact:'high',title:'A'},b:{impact:'low',title:'B'}};
-const engine=new RecommendationEngine(catalog);
+describe('RecommendationEngine', () => {
+  const catalog = {
+    a: { impact: 'high', title: 'A' },
+    b: { impact: 'low', title: 'B' }
+  };
+  const engine = new RecommendationEngine(catalog);
 
-const result=engine.resolve(['b','a','missing']);
+  it('drops keys that are missing from the catalog', () => {
+    expect(engine.resolve(['b', 'a', 'missing'])).toHaveLength(2);
+  });
 
-if(result.length!==2) throw new Error('Expected two recommendations');
-if(result[0].id!=='a') throw new Error('High impact should be first');
-console.log('RecommendationEngine tests passed');
+  it('sorts by impact with high first', () => {
+    const result = engine.resolve(['b', 'a']);
+    expect(result[0].id).toBe('a');
+    expect(result[1].id).toBe('b');
+  });
+
+  it('returns an empty array for empty input', () => {
+    expect(engine.resolve()).toEqual([]);
+  });
+});
